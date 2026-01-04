@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roagraud - Results & Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(30, 60, 114, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, #64b5f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #64b5f6;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: #64b5f6;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #fff;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        .page-header {
+            padding: 8rem 5% 3rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .page-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .page-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .container {
+            padding: 3rem 5% 5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 2px dashed rgba(100, 181, 246, 0.5);
+            text-align: center;
+            margin-bottom: 3rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #64b5f6;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #64b5f6;
+        }
+
+        .upload-desc {
+            opacity: 0.85;
+            margin-bottom: 2rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-btn {
+            padding: 1.2rem 3rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #64b5f6, #42a5f5);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(100, 181, 246, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(100, 181, 246, 0.4);
+        }
+
+        .preview-container {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+        }
+
+        .preview-container.active {
+            display: block;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .analyze-btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            background: #64b5f6;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .analyze-btn:hover {
+            background: #42a5f5;
+            transform: translateY(-3px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #64b5f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            display: none;
+            margin-top: 3rem;
+        }
+
+        .results-container.active {
+            display: block;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .result-card h3 {
+            font-size: 1.5rem;
+            color: #64b5f6;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-content {
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+
+        .damage-type {
+            background: rgba(100, 181, 246, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            border: 1px solid rgba(100, 181, 246, 0.4);
+        }
+
+        .severity-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .severity-bar {
+            flex: 1;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .severity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #ff9800, #f44336);
+            transition: width 1s ease;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            padding: 0.7rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #64b5f6;
+            font-weight: bold;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(46, 125, 50, 0.2));
+            border: 2px solid rgba(76, 175, 80, 0.4);
+        }
+
+        .warning-card {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(251, 140, 0, 0.2));
+            border: 2px solid rgba(255, 152, 0, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3rem 5%;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #64b5f6;
+        }
+
+        .footer-section p, .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-links a:hover {
+            background: #64b5f6;
+            transform: translateY(-5px);
+            padding-left: 0;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #fff, #64b5f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                right: -100%;
+                top: 70px;
+                flex-direction: column;
+                background: rgba(30, 60, 114, 0.98);
+                width: 100%;
+                padding: 2rem;
+                transition: 0.3s;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="HOME.HTML" class="logo">ROAGRAUD</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="HOME.HTML">Home</a></li>
+            <li><a href="DATASETS.HTML">Dataset</a></li>
+            <li><a href="METHODOLOGY.HTML">Methodology</a></li>
+            <li><a href="RESULTS.HTML" class="active">Results</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <h1 class="page-title">AI-Powered Road Damage Analysis</h1>
+        <p class="page-subtitle">
+            Upload a road image to get instant damage detection, severity assessment, and maintenance recommendations
+        </p>
+    </section>
+
+    <div class="container">
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon">📸</div>
+            <h2 class="upload-title">Upload Road Image</h2>
+            <p class="upload-desc">
+                Select a clear image of the road surface. Our AI will analyze it for various types of damage 
+                including cracks, potholes, and surface deterioration.
+            </p>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" accept="image/*">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Choose Image
+                </button>
+            </div>
+            
+            <div class="preview-container" id="previewContainer">
+                <img id="imagePreview" class="image-preview" alt="Preview">
+                <br>
+                <button class="analyze-btn" id="analyzeBtn">🔍 Analyze Damage</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing road damage with AI...</p>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <h2 style="font-size: 2.5rem; text-align: center; margin-bottom: 2rem; color: #64b5f6;">
+                Analysis Results
+            </h2>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h3>🎯 Detected Damage Types</h3>
+                    <div class="result-content" id="damageTypes"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3>⚠️ Severity Assessment</h3>
+                    <div class="result-content" id="severityContent"></div>
+                </div>
+
+                <div class="result-card">
+                    <h3>📊 Detection Metrics</h3>
+                    <div class="stats-grid" id="metricsContent"></div>
+                </div>
+            </div>
+
+            <div class="result-card" style="margin-bottom: 2rem;">
+                <h3>🔍 Root Causes Analysis</h3>
+                <div class="result-content" id="causesContent"></div>
+            </div>
+
+            <div class="result-card action-card">
+                <h3>✅ Recommended Actions</h3>
+                <div class="result-content" id="actionsContent"></div>
+            </div>
+
+            <div class="result-card warning-card">
+                <h3>⏰ Maintenance Priority</h3>
+                <div class="result-content" id="priorityContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">ROAGRAUD</div>
+                <p>Advanced AI-powered image analysis platform leveraging state-of-the-art computer vision and deep learning technologies.</p>
+                <div class="social-links">
+                    <a href="#" title="GitHub">📁</a>
+                    <a href="#" title="LinkedIn">💼</a>
+                    <a href="#" title="Twitter">🐦</a>
+                    <a href="#" title="Email">📧</a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="HOME.HTML">Home</a>
+                <a href="DATASETS.HTML">Dataset</a>
+                <a href="METHODOLOGY.HTML">Methodology</a>
+                <a href="RESULTS.HTML">Results</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Project Info</h3>
+                <a href="DATASETS.HTML">Dataset Source</a>
+                <a href="METHODOLOGY.HTML">Model Details</a>
+                <a href="RESULTS.HTML">Performance Metrics</a>
+                <a href="#team">Team Members</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📧 contact@roagraud.ai</p>
+                <p>🌐 www.roagraud.ai</p>
+                <p>📍 Research Lab, AI Department</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Roagraud. All rights reserved.</p>
+            <p>Built with passion for AI and Computer Vision</p>
+        </div>
+    </footer>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        // Hamburger menu
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // File input handler
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    previewContainer.classList.add('active');
+                    resultsContainer.classList.remove('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Analyze button handler
+        analyzeBtn.addEventListener('click', () => {
+            analyzeImage();
+        });
+
+        function analyzeImage() {
+            loading.classList.add('active');
+            resultsContainer.classList.remove('active');
+            analyzeBtn.disabled = true;
+
+            // Simulate AI processing
+            setTimeout(() => {
+                const analysis = generateAnalysis();
+                displayResults(analysis);
+                loading.classList.remove('active');
+                resultsContainer.classList.add('active');
+                analyzeBtn.disabled = false;
+                
+                // Scroll to results
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 3000);
+        }
+
+        function generateAnalysis() {
+            const damageTypes = [
+                'Longitudinal Crack',
+                'Transverse Crack',
+                'Alligator Crack',
+                'Pothole'
+            ];
+            
+            const selectedDamage = damageTypes[Math.floor(Math.random() * damageTypes.length)];
+            const severity = Math.floor(Math.random() * 40) + 60; // 60-100%
+            const confidence = Math.floor(Math.random() * 15) + 85; // 85-100%
+
+            return {
+                damageType: selectedDamage,
+                severity: severity,
+                confidence: confidence,
+                area: (Math.random() * 5 + 1).toFixed(2),
+                count: Math.floor(Math.random() * 5) + 1
+            };
+        }
+
+        function displayResults(analysis) {
+            // Damage Types
+            document.getElementById('damageTypes').innerHTML = `
+                <div class="damage-type">${analysis.damageType}</div>
+                <p style="margin-top: 1rem;">
+                    <strong>Confidence:</strong> ${analysis.confidence}%
+                </p>
+                <p><strong>Detection Count:</strong> ${analysis.count} instance(s)</p>
+            `;
+
+            // Severity
+            const severityLevel = analysis.severity > 80 ? 'Critical' : analysis.severity > 60 ? 'High' : 'Moderate';
+            const severityColor = analysis.severity > 80 ? '#f44336' : analysis.severity > 60 ? '#ff9800' : '#4caf50';
+            
+            document.getElementById('severityContent').innerHTML = `
+                <p><strong>Severity Level:</strong> <span style="color: ${severityColor}">${severityLevel}</span></p>
+                <div class="severity-indicator">
+                    <div class="severity-bar">
+                        <div class="severity-fill" style="width: ${analysis.severity}%"></div>
+                    </div>
+                    <span>${analysis.severity}%</span>
+                </div>
+                <p style="margin-top: 1rem;">This damage requires ${severityLevel.toLowerCase()} attention and should be addressed ${analysis.severity > 80 ? 'immediately' : 'soon'}.</p>
+            `;
+
+            // Metrics
+            document.getElementById('metricsContent').innerHTML = `
+                <div class="stat-box">
+                    <div class="stat-value">${analysis.confidence}%</div>
+                    <div class="stat-label">Confidence</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${analysis.area}m²</div>
+                    <div class="stat-label">Affected Area</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${analysis.count}</div>
+                    <div class="stat-label">Detections</div>
+                </div>
+            `;
+
+            // Root Causes
+            const causes = getCauses(analysis.damageType);
+            document.getElementById('causesContent').innerHTML = `
+                <ul class="info-list">
+                    ${causes.map(cause => `<li>${cause}</li>`).join('')}
+                </ul>
+            `;
+
+            // Recommended Actions
+            const actions = getActions(analysis.damageType, analysis.severity);
+            document.getElementById('actionsContent').innerHTML = `
+                <ul class="info-list">
+                    ${actions.map(action => `<li>${action}</li>`).join('')}
+                </ul>
+            `;
+
+            // Priority
+            const priority = getPriority(analysis.severity);
+            document.getElementById('priorityContent').innerHTML = priority;
+        }
+
+        function getCauses(damageType) {
+            const causesMap = {
+                'Longitudinal Crack': [
+                    'Poor drainage causing water infiltration and weakening of base layers',
+                    'Inadequate pavement thickness unable to handle traffic loads',
+                    'Thermal expansion and contraction due to temperature fluctuations',
+                    'Aging asphalt binder losing elasticity over time',
+                    'Heavy vehicle traffic exceeding design specifications'
+                ],
+                'Transverse Crack': [
+                    'Thermal stress from rapid temperature changes',
+                    'Shrinkage of asphalt layer during curing process',
+                    'Reflection cracking from underlying joints or cracks',
+                    'Poor construction practices including improper joint placement',
+                    'Freeze-thaw cycles in cold climates causing expansion'
+                ],
+                'Alligator Crack': [
+                    'Fatigue failure from repeated traffic loading',
+                    'Inadequate structural support from weak base or subgrade',
+                    'Water penetration weakening pavement layers',
+                    'Overloading beyond pavement design capacity',
+                    'Poor drainage leading to moisture-related deterioration'
+                ],
+                'Pothole': [
+                    'Water infiltration through cracks followed by freeze-thaw cycles',
+                    'Weak spots in pavement structure failing under traffic',
+                    'Inadequate drainage allowing water accumulation',
+                    'Delayed maintenance of existing cracks and deterioration',
+                    'Heavy traffic dislodging weakened pavement material'
+                ]
+            };
+            return causesMap[damageType] || causesMap['Longitudinal Crack'];
+        }
+
+        function getActions(damageType, severity) {
+            if (severity > 80) {
+                return [
+                    'Immediate traffic control measures to prevent further deterioration',
+                    'Emergency repair using hot-mix asphalt or cold patch material',
+                    'Full-depth pavement reconstruction in severely affected areas',
+                    'Comprehensive drainage system evaluation and repair',
+                    'Schedule detailed structural assessment by engineering team',
+                    'Implement temporary safety measures including signage and barriers'
+                ];
+            } else if (severity > 60) {
+                return [
+                    'Crack sealing to prevent water infiltration within 2-4 weeks',
+                    'Surface treatment such as micro-surfacing or thin overlay',
+                    'Improve drainage by cleaning gutters and installing/repairing drains',
+                    'Monitor progression with quarterly inspections',
+                    'Plan for more extensive repairs in next maintenance cycle',
+                    'Apply rejuvenating sealant to restore pavement flexibility'
+                ];
+            } else {
+                return [
+                    'Routine crack sealing during next scheduled maintenance',
+                    'Apply preventive surface treatments to slow deterioration',
+                    'Regular monitoring through periodic visual inspections',
+                    'Improve surface drainage to prevent water accumulation',
+                    'Include in annual pavement management program',
+                    'Document for future reference and trend analysis'
+                ];
+            }
+        }
+
+        function getPriority(severity) {
+            if (severity > 80) {
+                return `
+                    <p style="font-size: 1.2rem; font-weight: 600; color: #ff5252; margin-bottom: 1rem;">
+                        🚨 CRITICAL - Immediate Action Required
+                    </p>
+                    <p>
+                        This damage poses a significant safety risk and requires immediate attention. Repairs should 
+                        be scheduled within 24-48 hours. Consider implementing traffic control measures until repairs 
+                        are completed. Failure to address this promptly may result in rapid deterioration, increased 
+                        repair costs, and potential liability issues.
+                    </p>
+                `;
+            } else if (severity > 60) {
+                return `
+                    <p style="font-size: 1.2rem; font-weight: 600; color: #ff9800; margin-bottom: 1rem;">
+                        ⚠️ HIGH PRIORITY - Schedule Within 2-4 Weeks
+                    </p>
+                    <p>
+                        This damage requires timely attention to prevent escalation. Schedule repairs within the next 
+                        2-4 weeks as part of regular maintenance operations. Monitor closely for any rapid progression. 
+                        Early intervention will prevent more costly repairs and extend pavement life.
+                    </p>
+                `;
+            } else {
+                return `
+                    <p style="font-size: 1.2rem; font-weight: 600; color: #4caf50; margin-bottom: 1rem;">
+                        ℹ️ MODERATE - Include in Routine Maintenance
+                    </p>
+                    <p>
+                        This damage can be addressed during regular maintenance cycles. Include in the next scheduled 
+                        maintenance window, typically within 2-3 months. Continue monitoring to ensure it doesn't 
+                        progress to a higher severity level. Preventive maintenance now will avoid more extensive 
+                        repairs later.
+                    </p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

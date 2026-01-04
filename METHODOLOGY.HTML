@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roagraud - Methodology</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(30, 60, 114, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, #64b5f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #64b5f6;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: #64b5f6;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #fff;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        .page-header {
+            padding: 8rem 5% 3rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .page-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .page-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb a {
+            color: #64b5f6;
+            text-decoration: none;
+        }
+
+        .methodology-container {
+            padding: 3rem 5% 5rem;
+        }
+
+        .pipeline-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #64b5f6;
+        }
+
+        .pipeline-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .pipeline-step {
+            flex: 1;
+            min-width: 150px;
+            background: rgba(100, 181, 246, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(100, 181, 246, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pipeline-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: #64b5f6;
+        }
+
+        .pipeline-step:hover {
+            transform: translateY(-5px);
+            background: rgba(100, 181, 246, 0.2);
+            border-color: #64b5f6;
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #64b5f6;
+        }
+
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .method-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .method-icon {
+            font-size: 3rem;
+        }
+
+        .method-title {
+            font-size: 1.8rem;
+            color: #64b5f6;
+            font-weight: 600;
+        }
+
+        .method-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.8rem 0;
+            padding-left: 2rem;
+            position: relative;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #64b5f6;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .augmentation-showcase {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 3rem;
+            border-radius: 20px;
+            margin-top: 3rem;
+        }
+
+        .augmentation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .aug-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .aug-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+            border-color: rgba(100, 181, 246, 0.5);
+        }
+
+        .aug-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .aug-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #64b5f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .aug-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .training-timeline {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 20px;
+            margin-top: 3rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, #64b5f6, #42a5f5);
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #64b5f6;
+            border-radius: 50%;
+            border: 4px solid #1e3c72;
+            z-index: 2;
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            color: #64b5f6;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .timeline-desc {
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(100, 181, 246, 0.2), rgba(30, 60, 114, 0.3));
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid rgba(100, 181, 246, 0.3);
+            margin-top: 2rem;
+        }
+
+        .info-box-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #64b5f6;
+        }
+
+        .info-box p {
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3rem 5%;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #64b5f6;
+        }
+
+        .footer-section p, .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-links a:hover {
+            background: #64b5f6;
+            transform: translateY(-5px);
+            padding-left: 0;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #fff, #64b5f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                right: -100%;
+                top: 70px;
+                flex-direction: column;
+                background: rgba(30, 60, 114, 0.98);
+                width: 100%;
+                padding: 2rem;
+                transition: 0.3s;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .methodology-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pipeline-flow {
+                flex-direction: column;
+            }
+
+            .pipeline-step:not(:last-child)::after {
+                content: '↓';
+                right: auto;
+                left: 50%;
+                top: auto;
+                bottom: -2rem;
+                transform: translateX(-50%);
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timeline-content {
+                width: 100%;
+                margin-left: 50px;
+            }
+
+            .timeline-marker {
+                left: 20px;
+            }
+
+            .augmentation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="HOME.HTML" class="logo">ROAGRAUD</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="HOME.HTML">Home</a></li>
+            <li><a href="DATASETS.HTML">Dataset</a></li>
+            <li><a href="METHODOLOGY.HTML" class="active">Methodology</a></li>
+            <li><a href="RESULTS.HTML">Results</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <h1 class="page-title">Methodology</h1>
+        <p class="page-subtitle">
+            Comprehensive approach to road damage detection using state-of-the-art deep learning techniques
+        </p>
+        <div class="breadcrumb">
+            <a href="HOME.HTML">Home</a>
+            <span>/</span>
+            <span>Methodology</span>
+        </div>
+    </section>
+
+    <div class="methodology-container">
+        <!-- Detection Pipeline -->
+        <section class="pipeline-section">
+            <h2 class="section-title">End-to-End Detection Pipeline</h2>
+            <p style="text-align: center; opacity: 0.85; margin-bottom: 2rem;">
+                Our complete workflow from raw images to accurate damage detection
+            </p>
+            
+            <div class="pipeline-flow">
+                <div class="pipeline-step">
+                    <div class="step-icon">📥</div>
+                    <div class="step-title">Data Input</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">🔄</div>
+                    <div class="step-title">Preprocessing</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">🧠</div>
+                    <div class="step-title">YOLOv8 Model</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">🎯</div>
+                    <div class="step-title">Detection</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon">📊</div>
+                    <div class="step-title">Results</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3 class="info-box-title">🚀 Pipeline Features</h3>
+                <p>
+                    Our end-to-end object detection pipeline leverages transfer learning using pretrained weights, 
+                    implements validation-based model selection for optimal performance, fine-tunes confidence 
+                    threshold parameters, and optimizes Non-Maximum Suppression (NMS) to eliminate duplicate detections 
+                    while maintaining high accuracy.
+                </p>
+            </div>
+        </section>
+
+        <!-- Main Methodology Cards -->
+        <div class="methodology-grid">
+            <!-- Model Used -->
+            <div class="method-card">
+                <div class="method-header">
+                    <div class="method-icon">🤖</div>
+                    <h3 class="method-title">Model Architecture</h3>
+                </div>
+                <p class="method-description">
+                    We utilize YOLOv8, the latest iteration of the YOLO (You Only Look Once) family, 
+                    renowned for its exceptional balance between speed and accuracy in object detection tasks.
+                </p>
+                <ul class="feature-list">
+                    <li>YOLOv8 architecture with anchor-free detection</li>
+                    <li>Advanced detection head for precise localization</li>
+                    <li>Multi-scale feature extraction using FPN</li>
+                    <li>Real-time inference with 95%+ accuracy</li>
+                    <li>Optimized for edge deployment</li>
+                    <li>Transfer learning from COCO pretrained weights</li>
+                </ul>
+            </div>
+
+            <!-- Training Steps -->
+            <div class="method-card">
+                <div class="method-header">
+                    <div class="method-icon">📈</div>
+                    <h3 class="method-title">Training Process</h3>
+                </div>
+                <p class="method-description">
+                    Our comprehensive training strategy ensures optimal model performance through careful 
+                    hyperparameter tuning and regularization techniques.
+                </p>
+                <ul class="feature-list">
+                    <li>Dataset normalization with ImageNet statistics</li>
+                    <li>Warm-up learning rate for stable convergence</li>
+                    <li>Early stopping to prevent overfitting</li>
+                    <li>Best-weight checkpoint saving</li>
+                    <li>Periodic validation evaluation every epoch</li>
+                    <li>Adam optimizer with cosine annealing</li>
+                    <li>Mixed precision training for efficiency</li>
+                </ul>
+            </div>
+
+            <!-- Augmentations -->
+            <div class="method-card">
+                <div class="method-header">
+                    <div class="method-icon">🔀</div>
+                    <h3 class="method-title">Data Augmentation</h3>
+                </div>
+                <p class="method-description">
+                    Extensive augmentation pipeline to improve model robustness and generalization 
+                    across diverse real-world conditions.
+                </p>
+                <ul class="feature-list">
+                    <li>Horizontal and vertical flips</li>
+                    <li>Random rotation (±15 degrees)</li>
+                    <li>Mosaic augmentation (4-image composition)</li>
+                    <li>MixUp augmentation for boundary smoothing</li>
+                    <li>Random scaling and cropping</li>
+                    <li>Brightness and contrast adjustment</li>
+                    <li>Gaussian blur and noise injection</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Augmentation Showcase -->
+        <section class="augmentation-showcase">
+            <h2 class="section-title">Augmentation Techniques</h2>
+            <p style="text-align: center; opacity: 0.85; margin-bottom: 2rem;">
+                Visual representation of our comprehensive augmentation strategy
+            </p>
+            
+            <div class="augmentation-grid">
+                <div class="aug-item">
+                    <div class="aug-icon">↔️</div>
+                    <div class="aug-name">Flip</div>
+                    <p class="aug-desc">Horizontal & vertical mirroring</p>
+                </div>
+                <div class="aug-item">
+                    <div class="aug-icon">🔄</div>
+                    <div class="aug-name">Rotation</div>
+                    <p class="aug-desc">Random angle variations</p>
+                </div>
+                <div class="aug-item">
+                    <div class="aug-icon">🎨</div>
+                    <div class="aug-name">Mosaic</div>
+                    <p class="aug-desc">4-image composition</p>
+                </div>
+                <div class="aug-item">
+                    <div class="aug-icon">🌈</div>
+                    <div class="aug-name">MixUp</div>
+                    <p class="aug-desc">Image blending</p>
+                </div>
+                <div class="aug-item">
+                    <div class="aug-icon">📏</div>
+                    <div class="aug-name">Scaling</div>
+                    <p class="aug-desc">Size variations</p>
+                </div>
+                <div class="aug-item">
+                    <div class="aug-icon">✂️</div>
+                    <div class="aug-name">Cropping</div>
+                    <p class="aug-desc">Random region selection</p>
+                </div>
+                <div class="aug-item">
+                    <div class="aug-icon">💡</div>
+                    <div class="aug-name">Brightness</div>
+                    <p class="aug-desc">Lighting adjustments</p>
+                </div>
+                <div class="aug-item">
+                    <div class="aug-icon">🌫️</div>
+                    <div class="aug-name">Blur & Noise</div>
+                    <p class="aug-desc">Quality variations</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Training Timeline -->
+        <section class="training-timeline">
+            <h2 class="section-title">Training Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Phase 1: Data Preparation</h3>
+                        <p class="timeline-desc">
+                            Dataset loading, annotation validation, train-val-test splitting, and normalization 
+                            with ImageNet statistics for optimal transfer learning.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Phase 2: Model Initialization</h3>
+                        <p class="timeline-desc">
+                            Loading YOLOv8 architecture with COCO pretrained weights, freezing backbone layers 
+                            for initial epochs, and configuring detection head for 5 damage classes.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Phase 3: Training Loop</h3>
+                        <p class="timeline-desc">
+                            Warm-up learning rate schedule, augmentation pipeline activation, periodic validation 
+                            evaluation, and checkpoint saving for best performing weights.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Phase 4: Fine-tuning</h3>
+                        <p class="timeline-desc">
+                            Unfreezing backbone layers, reducing learning rate, extended training with early 
+                            stopping, and hyperparameter optimization for maximum performance.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Phase 5: Optimization</h3>
+                        <p class="timeline-desc">
+                            NMS threshold tuning, confidence score calibration, post-processing pipeline 
+                            optimization, and final model validation on test set.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Additional Info -->
+        <div class="info-box" style="margin-top: 3rem;">
+            <h3 class="info-box-title">🎯 Key Advantages</h3>
+            <p>
+                Our methodology combines state-of-the-art architecture with proven training techniques to achieve 
+                exceptional performance. The YOLOv8 anchor-free design eliminates the need for manual anchor tuning, 
+                while our extensive augmentation strategy ensures robustness across diverse road conditions. Transfer 
+                learning accelerates convergence, and our validation-based selection guarantees optimal generalization. 
+                The result is a production-ready model capable of real-time inference with industry-leading accuracy.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">ROAGRAUD</div>
+                <p>Advanced AI-powered image analysis platform leveraging state-of-the-art computer vision and deep learning technologies.</p>
+                <div class="social-links">
+                    <a href="#" title="GitHub">📁</a>
+                    <a href="#" title="LinkedIn">💼</a>
+                    <a href="#" title="Twitter">🐦</a>
+                    <a href="#" title="Email">📧</a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="HOME.HTML">Home</a>
+                <a href="DATASETS.HTML">Dataset</a>
+                <a href="METHODOLOGY.HTML">Methodology</a>
+                <a href="RESULTS.HTML">Results</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Project Info</h3>
+                <a href="DATASETS.HTML">Dataset Source</a>
+                <a href="METHODOLOGY.HTML">Model Details</a>
+                <a href="RESULTS.HTML">Performance Metrics</a>
+                <a href="#team">Team Members</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📧 contact@roagraud.ai</p>
+                <p>🌐 www.roagraud.ai</p>
+                <p>📍 Research Lab, AI Department</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Roagraud. All rights reserved.</p>
+            <p>Built with passion for AI and Computer Vision</p>
+        </div>
+    </footer>
+
+    <script>
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.method-card, .aug-item, .timeline-item, .pipeline-step').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+        }

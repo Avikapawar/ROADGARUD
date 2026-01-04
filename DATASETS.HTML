@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roagraud - AI Image Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(30, 60, 114, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, #64b5f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #fff;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a.active {
+            color: #64b5f6;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            transform: translateY(-2px);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #fff;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-30px) translateX(30px); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+            text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s backwards;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            opacity: 0.85;
+            animation: fadeInUp 1s ease 0.4s backwards;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            animation: fadeInUp 1s ease 0.6s backwards;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: #1e3c72;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #fff;
+            color: #1e3c72;
+            transform: translateY(-5px);
+        }
+
+        .features {
+            padding: 5rem 5%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3rem 5%;
+            margin-top: 5rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #64b5f6;
+        }
+
+        .footer-section p, .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-links a:hover {
+            background: #64b5f6;
+            transform: translateY(-5px);
+            padding-left: 0;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #fff, #64b5f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .dataset-section {
+            padding: 5rem 5%;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .dataset-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .dataset-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .dataset-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 4px solid #64b5f6;
+        }
+
+        .detail-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: #64b5f6;
+        }
+
+        .detail-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .detail-card li {
+            padding: 0.7rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .detail-card li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #64b5f6;
+            font-weight: bold;
+        }
+
+        .dataset-features {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+        }
+
+        .features-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #64b5f6;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        .feature-badge {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .feature-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #64b5f6;
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        .dataset-cta {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(100, 181, 246, 0.2), rgba(30, 60, 114, 0.3));
+            padding: 3rem;
+            border-radius: 20px;
+            border: 2px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .dataset-cta h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .dataset-cta p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                right: -100%;
+                top: 70px;
+                flex-direction: column;
+                background: rgba(30, 60, 114, 0.98);
+                width: 100%;
+                padding: 2rem;
+                transition: 0.3s;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">ROAGRAUD</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="HOME.HTML" class="active">Home</a></li>
+            <li><a href="DATASETS.HTML">Dataset</a></li>
+            <li><a href="METHODOLOGY.HTML">Methodology</a></li>
+            <li><a href="RESULTS.HTML">Results</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+   
+   
+     
+
+    <section class="dataset-section" id="dataset">
+        <div class="dataset-header">
+            <h2 class="section-title">Dataset Overview</h2>
+            <p class="section-subtitle">Comprehensive road damage detection dataset with real-world variations</p>
+        </div>
+
+        <div class="dataset-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📸</div>
+                <div class="stat-number" data-target="47000">0</div>
+                <div class="stat-label">Total Images</div>
+                <p class="stat-desc">High-resolution road surface images with multiple damage types</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-number" data-target="5">0</div>
+                <div class="stat-label">Damage Classes</div>
+                <p class="stat-desc">Fine-grained crack categorization for multi-object detection</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🎲</div>
+                <div class="stat-number" data-target="3">0</div>
+                <div class="stat-label">Data Splits</div>
+                <p class="stat-desc">Separate train, validation, and test sets for robust evaluation</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📐</div>
+                <div class="stat-number" data-target="3680">0</div>
+                <div class="stat-label">Image Resolution</div>
+                <p class="stat-desc">3680×2760 pixels for detailed damage analysis</p>
+            </div>
+        </div>
+
+        <div class="dataset-details">
+            <div class="detail-card">
+                <h3>📁 Dataset Source</h3>
+                <ul>
+                    <li>Official Kaggle competition dataset</li>
+                    <li>Randomized and curated for consistent evaluation</li>
+                    <li>Annotated in YOLO format for easy integration</li>
+                    <li>Collected from real-world road conditions</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h3>🖼️ Image Characteristics</h3>
+                <ul>
+                    <li>Over 47,000 high-resolution images</li>
+                    <li>Real-world variations: lighting, shadows, weather</li>
+                    <li>Multiple damage types per image supported</li>
+                    <li>Captured using vehicle-mounted smartphones</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h3>🎯 Damage Classes</h3>
+                <ul>
+                    <li>Five mutually exclusive damage categories</li>
+                    <li>Fine-grained crack classification</li>
+                    <li>Includes: Longitudinal, Transverse, Alligator, Pothole, and More</li>
+                    <li>Suitable for multi-object detection tasks</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h3>⚖️ Data Quality</h3>
+                <ul>
+                    <li>Class imbalance handled during training</li>
+                    <li>Extensive data augmentation pipeline</li>
+                    <li>Quality-controlled annotations</li>
+                    <li>Large-scale dataset for robust learning</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="dataset-features">
+            <h3 class="features-title">Key Features</h3>
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-badge">✨</span>
+                    <div>
+                        <h4>High-Resolution Images</h4>
+                        <p>3680×2760 pixel resolution enables detailed damage detection and analysis</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-badge">🌦️</span>
+                    <div>
+                        <h4>Real-World Variations</h4>
+                        <p>Diverse conditions including various lighting, shadows, and weather scenarios</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-badge">🔍</span>
+                    <div>
+                        <h4>Multi-Damage Detection</h4>
+                        <p>Multiple damage types can be detected within a single image</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-badge">⚖️</span>
+                    <div>
+                        <h4>Balanced Training</h4>
+                        <p>Class imbalance addressed through strategic sampling and augmentation</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-badge">📊</span>
+                    <div>
+                        <h4>Comprehensive Splits</h4>
+                        <p>Well-structured train, validation, and test sets for rigorous evaluation</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-badge">🎯</span>
+                    <div>
+                        <h4>YOLO Format</h4>
+                        <p>Annotations provided in YOLO format for seamless model integration</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dataset-cta">
+            <h3>Ready to Explore?</h3>
+            <p>Access the complete dataset and start building your own road damage detection models</p>
+            <a href="https://www.kaggle.com/datasets/alvarobasily/road-damage" target="_blank" class="btn btn-primary">View on Kaggle</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2 class="section-title">Why Choose Roagraud?</h2>
+        <p class="section-subtitle">Powered by advanced machine learning algorithms</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">High Accuracy</h3>
+                <p class="feature-description">Achieve exceptional precision with our trained models optimized for various image classification tasks.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Fast Processing</h3>
+                <p class="feature-description">Get results in milliseconds with our optimized inference pipeline and efficient architecture.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Detailed Analytics</h3>
+                <p class="feature-description">Comprehensive analysis with confidence scores, class probabilities, and visual explanations.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔬</div>
+                <h3 class="feature-title">Research-Backed</h3>
+                <p class="feature-description">Built on proven methodologies and trained on curated datasets from Kaggle.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">ROAGRAUD</div>
+                <p>Advanced AI-powered image analysis platform leveraging state-of-the-art computer vision and deep learning technologies.</p>
+                <div class="social-links">
+                    <a href="#" title="GitHub">📁</a>
+                    <a href="#" title="LinkedIn">💼</a>
+                    <a href="#" title="Twitter">🐦</a>
+                    <a href="#" title="Email">📧</a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="index.html">Home</a>
+                <a href="dataset.html">Dataset</a>
+                <a href="methodology.html">Methodology</a>
+                <a href="results.html">Results</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Project Info</h3>
+                <a href="dataset.html">Dataset Source</a>
+                <a href="methodology.html">Model Details</a>
+                <a href="results.html">Performance Metrics</a>
+                <a href="#team">Team Members</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📧 contact@roagraud.ai</p>
+                <p>🌐 www.roagraud.ai</p>
+                <p>📍 Research Lab, AI Department</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Roagraud. All rights reserved.</p>
+            <p>Built with passion for AI and Computer Vision</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Animated counter for stats
+        function animateCounter(el) {
+            const target = parseInt(el.getAttribute('data-target'));
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    el.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    el.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 16);
+        }
+
+        // Observe stat cards for counter animation
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target.querySelector('.stat-number');
+                    if (counter && !counter.classList.contains('animated')) {
+                        counter.classList.add('animated');
+                        animateCounter(counter);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-card').forEach(card => {
+            statObserver.observe(card);
+        });
+
+        // Animate detail cards
+        document.querySelectorAll('.detail-card, .feature-item').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
